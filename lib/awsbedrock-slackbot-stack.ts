@@ -111,7 +111,8 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       memorySize: 1024,
       timeout: cdk.Duration.seconds(30),
       environment: {
-        STAGE: stage
+        STAGE: stage,
+        WORKER_FUNCTION_NAME: workerLambda.functionName
       },
     });
 
