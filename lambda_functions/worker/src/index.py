@@ -8,7 +8,7 @@ logger.setLevel(logging.DEBUG)
 def handler(event, context):
   logger.debug(event)
 
-  event_body = event.get("body", {})
+  event_body = event.get("body", {}) if event is not None else {}
 
   return {
     "statusCode": 200,

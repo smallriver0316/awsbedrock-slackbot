@@ -26,11 +26,10 @@ def handler(event, context):
 
     return {
       "statusCode": 200,
-      "body": json.dumps(response)
+      "body": json.dumps({"message": "Worker function invoked."})
     }
 
   return {
     "statusCode": 500,
-    "body": json.dumps({"error": "WORKER_FUNCTION_NAME is not set"})
+    "body": json.dumps({"error": "WORKER_FUNCTION_NAME is not set."})
   }
-
