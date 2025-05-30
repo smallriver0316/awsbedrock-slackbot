@@ -4,27 +4,30 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
-// import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import * as path from 'node:path';
-// import { slackConfig } from '../config/slack_config';
+import { slackConfig } from '../config/slack_config';
 
 export class AwsbedrockSlackbotStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage');
+    const stage = this.node.tryGetContext('stage') || 'dev';
     const accountId = cdk.Stack.of(this).account;
     const region = cdk.Stack.of(this).region;
 
     // SSM parameters
-    // new StringParameter(this, `SSMParameter4SlackBotToken-${stage}`, {
-    //   parameterName: `/awsbedrock-slackbot/${stage}/SLACK_BOT_TOKEN`,
-    //   stringValue: slackConfig.SLACK_BOT_TOKEN,
-    // });
-    // new StringParameter(this, `SSMParameter4SlackBotSigningSecret-${stage}`, {
-    //   parameterName: `/awsbedrock-slackbot/${stage}/SLACK_BOT_SIGNING_SECRET`,
-    //   stringValue: slackConfig.SLACK_SIGNING_SECRET,
-    // });
+    // Stable Image Ultra v1:1
+    new StringParameter(this, `StableImageUltraSlackBotToken-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/STABLE_IMAGE_ULTRA/SLACK_BOT_TOKEN`,
+      stringValue: slackConfig.STABLE_IMAGE_ULTRA.SLACK_BOT_TOKEN,
+      description: 'Slack bot token for the app to access Stable Image Ultra',
+    });
+    new StringParameter(this, `StableImageUltraSlackBotSigningSecret-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/STABLE_IMAGE_ULTRA/SLACK_BOT_SIGNING_SECRET`,
+      stringValue: slackConfig.STABLE_IMAGE_ULTRA.SLACK_SIGNING_SECRET,
+      description: 'Slack bot signing secret for the app to access Stable Image Ultra'
+    });
 
     // lambda functions
     // IAM Role
@@ -47,6 +50,15 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
                 'logs:PutLogEvents',
               ],
               resources: [`arn:aws:logs:${region}:${accountId}:log-group:*:*`],
+            }),
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'ssm:GetParameters',
+                'ssm:GetParameter',
+                'ssm:GetParametersByPath',
+              ],
+              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/awsbedrock-slackbot/${stage}/*`],
             }),
           ],
         }),
@@ -94,6 +106,15 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
                 'logs:PutLogEvents',
               ],
               resources: [`arn:aws:logs:${region}:${accountId}:log-group:*:*`],
+            }),
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'ssm:GetParameters',
+                'ssm:GetParameter',
+                'ssm:GetParametersByPath',
+              ],
+              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/awsbedrock-slackbot/${stage}/*`],
             }),
           ],
         }),
