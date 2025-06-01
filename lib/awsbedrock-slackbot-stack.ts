@@ -58,7 +58,7 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
                 'ssm:GetParameter',
                 'ssm:GetParametersByPath',
               ],
-              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/awsbedrock-slackbot/${stage}/*`],
+              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/bedrock-slackbot/${stage}/*`],
             }),
           ],
         }),
@@ -114,7 +114,7 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
                 'ssm:GetParameter',
                 'ssm:GetParametersByPath',
               ],
-              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/awsbedrock-slackbot/${stage}/*`],
+              resources: [`arn:aws:ssm:${region}:${accountId}:parameter/bedrock-slackbot/${stage}/*`],
             }),
           ],
         }),
@@ -153,7 +153,7 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       }
     });
 
-    const stableImageUltra11 = api.root.addResource('stable_image_ultra_v1_1');
-    stableImageUltra11.addMethod('GET');
+    const stableImageUltra = api.root.addResource('stable_image_ultra');
+    stableImageUltra.addMethod('POST');
   }
 }

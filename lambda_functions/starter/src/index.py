@@ -17,7 +17,7 @@ ssm = boto3.client("ssm", region_name=REGION)
 lambda_client = boto3.client("lambda", region_name=REGION)
 
 params = ssm.get_parameters_by_path(
-  Path=f"/bedrock-slackbot/${STAGE}/",
+  Path=f"/bedrock-slackbot/{STAGE}/",
   Recursive=True,
   WithDecryption=True
 )
@@ -25,7 +25,7 @@ params = ssm.get_parameters_by_path(
 for param in params["Parameters"]:
     if param["Name"].endswith("STABLE_IMAGE_ULTRA/SLACK_BOT_TOKEN"):
         SLACK_BOT_TOKEN = param["Value"]
-    if param["Name"].endswith("STABLE_IMAGE_ULTRA/SLACK_SIGNING_SECRET"):
+    if param["Name"].endswith("STABLE_IMAGE_ULTRA/SLACK_BOT_SIGNING_SECRET"):
         SLACK_SIGNING_SECRET = param["Value"]
 
 app = App(

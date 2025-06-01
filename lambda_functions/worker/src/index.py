@@ -26,12 +26,11 @@ def handler(event, context):
   logger.debug(event)
 
   try:
-    msg_body = event.get("body", {}) if event is not None else {}
-    channel_id = msg_body.get("channel_id", None)
-    input_text = msg_body.get("input_text", None)
+    channel_id = event.get("channel_id", None)
+    input_text = event.get("input_text", None)
 
     if channel_id is None or input_text is None:
-      logger.error(f"Invalid request: {json.dumps(msg_body)}")
+      logger.error(f"Invalid request: {json.dumps(event)}")
       raise Exception("channel_id or input_text is None!")
 
     result = slack_client.chat_postMessage(
@@ -42,7 +41,8 @@ def handler(event, context):
     logger.debug(result)
   except Exception as e:
     logger.error(e)
-    slack_client.chat_postMessage(
-      channel=channel_id,
-      text=f"Error occured: {e}"
-    )
+    if channel_id is not None:
+      slack_client.chat_postMessage(
+        channel=channel_id,
+        text=f"Error occured: {e}"
+      )
