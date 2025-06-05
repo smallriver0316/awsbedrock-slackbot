@@ -1,0 +1,4 @@
+export const slackConfig = {
+  SLACK_BOT_TOKEN: "<YOUR_SLACK_BOT_TOKEN>",
+  SLACK_SIGNING_SECRET: "<YOUR_SLACK_SIGNING_SECRET>",
+};

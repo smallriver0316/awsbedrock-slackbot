@@ -6,3 +6,6 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# slack config template
+config/slack_config.ts
