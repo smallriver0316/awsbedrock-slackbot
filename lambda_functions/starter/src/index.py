@@ -50,6 +50,7 @@ def handle_app_mention_events(event, say):
     FunctionName=WORKER_FUNCTION_NAME,
     InvocationType="Event",
     Payload=json.dumps({
+      "model": "stable_image_ultra",
       "channel_id": channel_id,
       "input_text": input_text
     })
