@@ -40,7 +40,7 @@ cd lambda_functions/starter/
 pipenv requirements > requirements.txt
 pip install -r requirements.txt -t src/
 
-cd ../woerker/
+cd ../worker/
 pipenv requirements > requirements.txt
 pip install -r requirements.txt -t src/
 ```
