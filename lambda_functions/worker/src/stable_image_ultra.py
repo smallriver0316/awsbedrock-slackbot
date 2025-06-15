@@ -12,21 +12,11 @@ logger.setLevel(logging.DEBUG)
 
 MODEL_ID = "stability.stable-image-ultra-v1:1"
 REGION = os.environ.get("AWS_REGION", "")
-STAGE = os.environ.get("STAGE", "")
 
 bedrock_runtime = boto3.client("bedrock-runtime", region_name=REGION)
-ssm = boto3.client("ssm", region_name=REGION)
-
-param = ssm.get_parameter(
-    Name=f"/bedrock-slackbot/{STAGE}/STABLE_IMAGE_ULTRA/SLACK_BOT_TOKEN",
-    WithDecryption=True,
-)
-
-SLACK_BOT_TOKEN = param["Parameter"]["Value"]
-slack_client = WebClient(token=SLACK_BOT_TOKEN)
 
 
-def invoke_model(channel_id: str | None, input_text: str | None) -> None:
+def invoke_model(channel_id: str | None, input_text: str | None, slack_client: WebClient) -> None:
   try:
     if channel_id is None or input_text is None:
       logger.error(f"Invalid request: channel ID={channel_id}, input text={input_text}")
