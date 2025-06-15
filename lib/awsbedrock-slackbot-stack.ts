@@ -28,6 +28,17 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       stringValue: slackConfig.STABLE_IMAGE_ULTRA.SLACK_SIGNING_SECRET,
       description: 'Slack bot signing secret for the app to access Stable Image Ultra'
     });
+    // claude4 sonnet
+    new StringParameter(this, `ClaudeSonnetSlackBotToken-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/CLAUDE_SONNET/SLACK_BOT_TOKEN`,
+      stringValue: slack_config.CLAUDE_SONNET.SLACK_BOT_TOKEN,
+      description: 'Slack bot token for the app to access Claude Sonnet',
+    });
+    new StringParameter(this, `ClaudeSonnetSlackBotSigningSecret-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/CLAUDE_SONNET/SLACK_BOT_SIGNING_SECRET`,
+      stringValue: slack_config.CLAUDE_SONNET.SLACK_SIGNING_SECRET,
+      description: 'Slack bot signing secret for the app to access Claude Sonnet'
+    });
 
     // lambda functions
     // IAM Role
@@ -155,5 +166,8 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
 
     const stableImageUltra = api.root.addResource('stable_image_ultra');
     stableImageUltra.addMethod('POST');
+
+    const claudeSonnet = api.root.addResource('claude_sonnet');
+    claudeSonnet.addMethod('POST');
   }
 }
