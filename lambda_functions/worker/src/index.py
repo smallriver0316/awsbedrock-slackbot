@@ -2,6 +2,7 @@ import boto3
 import logging
 import os
 from slack_sdk import WebClient
+from claude_sonnet import invoke_model as invoke_claude_sonnet
 from stable_image_ultra import invoke_model as invoke_stable_image_ultra
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,8 @@ def handler(event, context) -> None:
     input_text = event.get("input_text", None)
 
     match model:
+      case "claude_sonnet":
+        invoke_claude_sonnet(channel_id, input_text, slack_client)
       case "stable_image_ultra":
         invoke_stable_image_ultra(channel_id, input_text, slack_client)
       case _:
