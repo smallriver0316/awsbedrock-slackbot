@@ -1,5 +1,4 @@
 import boto3
-import json
 import os
 import logging
 from slack_sdk import WebClient
@@ -8,7 +7,7 @@ from slack_sdk import WebClient
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-MODEL_ID = "anthropic.claude-sonnet-4-20250514-v1:0"
+MODEL_ID = os.environ.get("CLAUDE_SONNET_INFERENCE_PROFILE_ARN", "")
 REGION = os.environ.get("AWS_REGION", "")
 
 bedrock_runtime = boto3.client("bedrock-runtime", region_name=REGION)
@@ -23,27 +22,20 @@ def invoke_model(
             logger.error(f"Invalid request: channel ID={channel_id}, input text={input_text}")
             raise Exception(f"Invalid request: channel ID={channel_id}, input text={input_text}")
 
-        response = bedrock_runtime.invoke_model(
+        if MODEL_ID == "":
+            logger.error("Model ID is not set in the environment variables.")
+            raise Exception("Model ID is not set in the environment variables.")
+
+        response = bedrock_runtime.converse(
           modelId=MODEL_ID,
-          contentType="application/json",
-          accept="application/json",
-          body=json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 512,
-            "temperature": 0.5,
-            "messages": [
-              {
-                "role": "user",
-                "content": [{"type": "text", "text": input_text}]
-              }
-            ]
-          })
+          messages=[{
+            "role": "user",
+            "content": [{"text": input_text}]}],
+          inferenceConfig={"maxTokens": 512, "temperature": 0.5, "topP": 0.9},
         )
+        logger.debug(f"Response from Bedrock: {response}")
 
-        model_response = json.loads(response["body"].read())
-        logger.debug(model_response)
-
-        response_text = model_response["content"][0]["text"]
+        response_text = response["output"]["message"]["content"][0]["text"]
         result = slack_client.chat_postMessage(
           channel=channel_id,
           text=response_text
