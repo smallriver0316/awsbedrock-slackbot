@@ -10,6 +10,8 @@ def endpoint2model(endpoint: str) -> str:
   match endpoint:
     case "/stable_image_ultra":
       return "stable_image_ultra"
+    case "/claude_sonnet":
+      return "claude_sonnet"
     case _:
       raise Exception(f"Request from invalid endpoint: {endpoint}!")
 
@@ -23,4 +25,4 @@ def handler(event, context):
     slack_handler = SlackRequestHandler(app=slack_app.app)
     return slack_handler.handle(event, context)
   except Exception as e:
-    logger.error(f"Error occurs: {e}")
+    logger.error(f"Error occurred: {e}")
