@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import * as bedrock from 'aws-cdk-lib/aws-bedrock';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -16,6 +17,25 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
     const accountId = cdk.Stack.of(this).account;
     const region = cdk.Stack.of(this).region;
 
+    // Bedrock Inference Profile
+    const inferenceProfileForClaudeSonnet = new bedrock.CfnApplicationInferenceProfile(this, `ApplicationInferenceProfileForClaudeSonnet-${stage}`, {
+      inferenceProfileName: `awsbedrock-slack-bot-inf-profile-${stage}`,
+      description: 'Bedrock Application Inference Profile for Claude Sonnet',
+      modelSource: {
+        copyFrom: `arn:aws:bedrock:${region}:${accountId}:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0`
+      },
+      tags: [{
+        key: 'AppName',
+        value: 'awsbedrock-slackbot'
+      }, {
+        key: 'Stage',
+        value: stage
+      }, {
+        key: 'Model',
+        value: 'claude-sonnet-4'
+      }]
+    });
+
     // SSM parameters
     // Stable Image Ultra v1:1
     new StringParameter(this, `StableImageUltraSlackBotToken-${stage}`, {
@@ -31,12 +51,12 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
     // claude4 sonnet
     new StringParameter(this, `ClaudeSonnetSlackBotToken-${stage}`, {
       parameterName: `/bedrock-slackbot/${stage}/CLAUDE_SONNET/SLACK_BOT_TOKEN`,
-      stringValue: slack_config.CLAUDE_SONNET.SLACK_BOT_TOKEN,
+      stringValue: slackConfig.CLAUDE_SONNET.SLACK_BOT_TOKEN,
       description: 'Slack bot token for the app to access Claude Sonnet',
     });
     new StringParameter(this, `ClaudeSonnetSlackBotSigningSecret-${stage}`, {
       parameterName: `/bedrock-slackbot/${stage}/CLAUDE_SONNET/SLACK_BOT_SIGNING_SECRET`,
-      stringValue: slack_config.CLAUDE_SONNET.SLACK_SIGNING_SECRET,
+      stringValue: slackConfig.CLAUDE_SONNET.SLACK_SIGNING_SECRET,
       description: 'Slack bot signing secret for the app to access Claude Sonnet'
     });
 
@@ -88,6 +108,7 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       environment: {
         STAGE: stage,
+        CLAUDE_SONNET_INFERENCE_PROFILE_ARN: inferenceProfileForClaudeSonnet.attrInferenceProfileArn,
       },
     });
 
