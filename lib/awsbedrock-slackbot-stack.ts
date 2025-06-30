@@ -36,6 +36,24 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       }]
     });
 
+    const inferenceProfileForClaudeOpus = new bedrock.CfnApplicationInferenceProfile(this, `ApplicationInferenceProfileForClaudeOpus-${stage}`, {
+      inferenceProfileName: `awsbedrock-slack-bot-opus-inf-profile-${stage}`,
+      description: 'Bedrock Application Inference Profile for Claude Opus',
+      modelSource: {
+        copyFrom: `arn:aws:bedrock:${region}:${accountId}:inference-profile/us.anthropic.claude-opus-4-20250514-v1:0`
+      },
+      tags: [{
+        key: 'AppName',
+        value: 'awsbedrock-slackbot'
+      }, {
+        key: 'Stage',
+        value: stage
+      }, {
+        key: 'Model',
+        value: 'claude-opus-4'
+      }]
+    });
+
     // SSM parameters
     // Stable Image Ultra v1:1
     new StringParameter(this, `StableImageUltraSlackBotToken-${stage}`, {
@@ -58,6 +76,17 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       parameterName: `/bedrock-slackbot/${stage}/CLAUDE_SONNET/SLACK_BOT_SIGNING_SECRET`,
       stringValue: slackConfig.CLAUDE_SONNET.SLACK_SIGNING_SECRET,
       description: 'Slack bot signing secret for the app to access Claude Sonnet'
+    });
+    // claude4 opus
+    new StringParameter(this, `ClaudeOpusSlackBotToken-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/CLAUDE_OPUS/SLACK_BOT_TOKEN`,
+      stringValue: slackConfig.CLAUDE_OPUS.SLACK_BOT_TOKEN,
+      description: 'Slack bot token for the app to access Claude Opus',
+    });
+    new StringParameter(this, `ClaudeOpusSlackBotSigningSecret-${stage}`, {
+      parameterName: `/bedrock-slackbot/${stage}/CLAUDE_OPUS/SLACK_BOT_SIGNING_SECRET`,
+      stringValue: slackConfig.CLAUDE_OPUS.SLACK_SIGNING_SECRET,
+      description: 'Slack bot signing secret for the app to access Claude Opus'
     });
 
     // lambda functions
@@ -109,6 +138,7 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
       environment: {
         STAGE: stage,
         CLAUDE_SONNET_INFERENCE_PROFILE_ARN: inferenceProfileForClaudeSonnet.attrInferenceProfileArn,
+        CLAUDE_OPUS_INFERENCE_PROFILE_ARN: inferenceProfileForClaudeOpus.attrInferenceProfileArn,
       },
     });
 
@@ -190,5 +220,8 @@ export class AwsbedrockSlackbotStack extends cdk.Stack {
 
     const claudeSonnet = api.root.addResource('claude_sonnet');
     claudeSonnet.addMethod('POST');
+
+    const claudeOpus = api.root.addResource('claude_opus');
+    claudeOpus.addMethod('POST');
   }
 }
